@@ -5,7 +5,7 @@ import com.craftinginterpreters.lox.Expr.Grouping;
 import com.craftinginterpreters.lox.Expr.Literal;
 import com.craftinginterpreters.lox.Expr.Unary;
 
-public class AstPrinter implements Expr.Visitor<String> {
+public class RPNPrinter implements Expr.Visitor<String> {
 	
 	public String print(Expr expr) {
 		return expr.accept(this);
@@ -13,12 +13,12 @@ public class AstPrinter implements Expr.Visitor<String> {
 	
 	@Override
 	public String visitBinaryExpr(Binary expr) {
-		return parenthesize(expr.operator.lexeme, expr.left, expr.right);
+		return expr.left.accept(this) + ' ' + expr.right.accept(this) + expr.operator.lexeme;
 	}
 	
 	@Override
 	public String visitGroupingExpr(Grouping expr) {
-		return parenthesize("group", expr.expression);
+		return expr.expression.accept(this);
 	}
 	
 	@Override
@@ -31,20 +31,17 @@ public class AstPrinter implements Expr.Visitor<String> {
 	
 	@Override
 	public String visitUnaryExpr(Unary expr) {
-		return parenthesize(expr.operator.lexeme, expr.right);
+		return  expr.right.accept(this) + expr.operator.lexeme;
 	}
+
 	
-	private String parenthesize(String name, Expr... exprs) {
-		StringBuilder builder = new StringBuilder();
+	public static void main(String[] args) {
+		Expr expression = new Expr.Binary(
+				new Expr.Unary(new Token(TokenType.MINUS, "-", null, 1), new Expr.Literal(123)), 
+				new Token(TokenType.STAR, "*", null, 1), 
+				new Expr.Grouping(new Expr.Binary(new Expr.Literal(8),new Token(TokenType.MINUS, "-", null, 1), new Expr.Literal(123)))
+				);
+		System.out.println(new RPNPrinter().print(expression));
 		
-		builder.append("(");
-		builder.append(name);
-		for(Expr expr : exprs) {
-			builder.append(" ");
-			builder.append(expr.accept(this)); // recursively call AstPrinter on non-terminal expressions
-		}
-		builder.append(")");
-		
-		return builder.toString();
 	}
 }
