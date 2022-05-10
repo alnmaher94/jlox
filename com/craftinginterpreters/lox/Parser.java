@@ -22,9 +22,21 @@ public class Parser {
 	
 	//expression -> equality
 	private Expr expression() {
-		return equality();
+		return ternary();
 	}
 	
+	// equality -> comparison ((== | !=) comparison)*
+	private Expr ternary() {
+		Expr expr = equality();
+		while(match(TokenType.QUESTION_MARK)) {
+			Expr truthy = equality();
+			consume(TokenType.COLON, "Expect ':' after expression.");
+			Expr falsey = equality();
+			return new Expr.Ternary(expr, truthy, falsey);
+		}
+		return expr;
+	}
+
 	// equality -> comparison ((== | !=) comparison)*
 	private Expr equality() {
 		Expr expr = comparison();

@@ -3,6 +3,7 @@ package com.craftinginterpreters.lox;
 import com.craftinginterpreters.lox.Expr.Binary;
 import com.craftinginterpreters.lox.Expr.Grouping;
 import com.craftinginterpreters.lox.Expr.Literal;
+import com.craftinginterpreters.lox.Expr.Ternary;
 import com.craftinginterpreters.lox.Expr.Unary;
 
 public class AstPrinter implements Expr.Visitor<String> {
@@ -11,6 +12,11 @@ public class AstPrinter implements Expr.Visitor<String> {
 		return expr.accept(this);
 	}
 	
+	@Override
+	public String visitTernaryExpr(Ternary expr) {
+		return parenthesize("ternary", expr.comparison, expr.truthy, expr.falsey);
+	}
+
 	@Override
 	public String visitBinaryExpr(Binary expr) {
 		return parenthesize(expr.operator.lexeme, expr.left, expr.right);

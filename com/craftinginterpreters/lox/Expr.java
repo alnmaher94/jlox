@@ -9,6 +9,24 @@ abstract class Expr {
 		R visitGroupingExpr(Grouping expr);
 		R visitLiteralExpr(Literal expr);
 		R visitUnaryExpr(Unary expr);
+		R visitTernaryExpr(Ternary expr);
+	}
+	
+	static class Ternary extends Expr {
+		Ternary(Expr comparison, Expr truthy, Expr falsey) {
+			this.comparison = comparison;
+			this.truthy = truthy;
+			this.falsey = falsey;
+		}
+
+		@Override
+		<R> R accept(Visitor<R> visitor) {
+			return visitor.visitTernaryExpr(this);
+		}
+
+		final Expr comparison;
+		final Expr truthy;
+		final Expr falsey;
 	}
 
 	static class Binary extends Expr {
